@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<meta name="theme-color" content="#3d2b1f"/>
+<meta name="description" content="Gestor de tareas JYJ Estudio Arquitectónico"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="JYJ Tareas"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<title>JYJ — Gestor de Tareas</title>
+<style>
+  :root {
+    --brown-dark: #3d2b1f;
+    --brown-mid: #7a4f35;
+    --brown-light: #c4956a;
+    --beige: #e8d5be;
+    --blue-steel: #5c8a9a;
+    --blue-light: #a8c4cc;
+    --white: #faf7f4;
+    --gray: #888;
+    --shadow: 0 2px 12px rgba(61,43,31,0.13);
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--beige); color: var(--brown-dark);
+    min-height: 100vh; min-height: 100dvh;
+    overscroll-behavior: none;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--brown-dark); color: var(--white);
+    padding: 0 16px; padding-top: var(--safe-top);
+    display: flex; align-items: center; justify-content: space-between;
+    height: calc(64px + var(--safe-top));
+    box-shadow: var(--shadow); position: sticky; top: 0; z-index: 50;
+  }
+  .logo-area { display: flex; align-items: center; gap: 12px; }
+  #logoWrapper { cursor: pointer; }
+  #logoImg { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 3px solid var(--brown-light); display: none; }
+  .logo-placeholder { width: 46px; height: 46px; border-radius: 50%; background: var(--blue-steel); border: 3px solid var(--brown-light); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 12px; color: var(--white); }
+  #logoInput { display: none; }
+  .logo-text span:first-child { font-size: 18px; font-weight: 900; letter-spacing: 3px; display: block; }
+  .logo-text span:last-child { font-size: 8px; letter-spacing: 2px; color: var(--blue-light); display: block; }
+  .btn-primary { background: var(--blue-steel); color: var(--white); border: none; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; touch-action: manipulation; }
+  .btn-primary:active { opacity: .8; }
+
+  /* NAV */
+  nav { background: var(--brown-mid); display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  nav::-webkit-scrollbar { display: none; }
+  nav button { flex-shrink: 0; background: none; border: none; color: var(--beige); padding: 11px 16px; font-size: 12px; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; touch-action: manipulation; white-space: nowrap; }
+  nav button.active { color: var(--white); border-bottom-color: var(--blue-light); }
+
+  main { padding: 16px; padding-bottom: calc(16px + var(--safe-bottom)); }
+
+  /* PROJECTS BAR */
+  .projects-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 4px; }
+  .projects-bar::-webkit-scrollbar { display: none; }
+  .proj-label { font-size: 11px; font-weight: 700; color: var(--brown-mid); flex-shrink: 0; }
+  .proj-tag { flex-shrink: 0; background: var(--white); border: 2px solid var(--brown-light); color: var(--brown-dark); border-radius: 20px; padding: 5px 14px; font-size: 11px; font-weight: 700; cursor: pointer; touch-action: manipulation; }
+  .proj-tag.active { background: var(--brown-dark); color: var(--white); border-color: var(--brown-dark); }
+  .proj-add { flex-shrink: 0; background: none; border: 2px dashed var(--brown-light); color: var(--brown-mid); border-radius: 20px; padding: 5px 12px; font-size: 11px; cursor: pointer; font-weight: 600; touch-action: manipulation; }
+
+  /* KANBAN — scroll horizontal en móvil */
+  .kanban-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
+  .kanban { display: flex; gap: 14px; min-width: max-content; }
+  .col { background: var(--white); border-radius: 14px; padding: 14px; box-shadow: var(--shadow); min-height: 360px; width: 280px; flex-shrink: 0; }
+  @media(min-width: 900px) {
+    .kanban-wrapper { overflow-x: visible; }
+    .kanban { display: grid; grid-template-columns: repeat(4,1fr); min-width: unset; }
+    .col { width: auto; }
+  }
+  .col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .col-title { display: flex; align-items: center; gap: 7px; font-weight: 800; font-size: 12px; }
+  .col-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .col-count { background: var(--beige); color: var(--brown-mid); border-radius: 10px; padding: 2px 7px; font-size: 11px; font-weight: 700; }
+
+  /* TASK CARD */
+  .task-card { background: var(--white); border: 1px solid #e5d8cc; border-radius: 10px; padding: 11px; margin-bottom: 9px; box-shadow: 0 1px 4px rgba(61,43,31,0.08); border-left: 4px solid var(--brown-light); position: relative; cursor: grab; }
+  .task-card.priority-alta { border-left-color: #c0392b; }
+  .task-card.priority-media { border-left-color: #e67e22; }
+  .task-card.priority-baja { border-left-color: var(--blue-steel); }
+  .task-title { font-size: 12px; font-weight: 700; margin-bottom: 5px; }
+  .task-project { font-size: 10px; color: var(--blue-steel); font-weight: 600; margin-bottom: 5px; }
+  .task-meta { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+  .task-assignee { background: var(--beige); border-radius: 12px; padding: 2px 7px; font-size: 10px; color: var(--brown-mid); font-weight: 600; }
+  .task-date { font-size: 10px; color: var(--gray); }
+  .priority-badge { font-size: 9px; font-weight: 700; border-radius: 8px; padding: 2px 6px; }
+  .priority-alta .priority-badge { background: #fde; color: #c0392b; }
+  .priority-media .priority-badge { background: #fef3e2; color: #e67e22; }
+  .priority-baja .priority-badge { background: #e8f4f8; color: var(--blue-steel); }
+  .task-del { position: absolute; top: 7px; right: 7px; background: none; border: none; color: #ccc; cursor: pointer; font-size: 13px; touch-action: manipulation; }
+  .task-files-badge { font-size: 10px; color: var(--blue-steel); margin-top: 5px; }
+  .add-task-btn { width: 100%; background: none; border: 2px dashed #ddd; border-radius: 8px; padding: 9px; color: var(--gray); font-size: 11px; cursor: pointer; margin-top: 4px; touch-action: manipulation; }
+
+  /* ARCHIVOS */
+  .file-zone-wrapper { background: var(--white); border-radius: 14px; padding: 18px; box-shadow: var(--shadow); margin-bottom: 16px; }
+  .file-zone-title { font-size: 14px; font-weight: 800; color: var(--brown-dark); margin-bottom: 14px; }
+  .drop-area { border: 2.5px dashed var(--brown-light); border-radius: 12px; padding: 24px 16px; text-align: center; color: var(--brown-mid); cursor: pointer; background: var(--beige); touch-action: manipulation; }
+  .drop-area .drop-icon { font-size: 28px; margin-bottom: 8px; }
+  .drop-area p { font-size: 12px; font-weight: 600; }
+  .drop-area span { font-size: 10px; color: var(--gray); }
+  #fileInput { display: none; }
+  .file-list { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .file-item { display: flex; align-items: center; gap: 10px; background: var(--beige); border-radius: 10px; padding: 10px 12px; font-size: 12px; }
+  .file-icon { font-size: 18px; flex-shrink: 0; }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-meta { font-size: 10px; color: var(--gray); }
+  .file-actions { display: flex; gap: 5px; }
+  .file-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px; touch-action: manipulation; }
+
+  /* LIST */
+  .list-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 14px; box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; background: var(--white); min-width: 600px; }
+  thead tr { background: var(--brown-dark); color: var(--white); font-size: 11px; }
+  th, td { padding: 10px 14px; text-align: left; }
+  tbody tr { border-bottom: 1px solid #eee; font-size: 12px; }
+
+  /* STATS */
+  .stats-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .stat-card { background: var(--white); border-radius: 12px; padding: 14px 18px; box-shadow: var(--shadow); text-align: center; flex: 1; min-width: 80px; }
+  .stat-num { font-size: 24px; font-weight: 900; color: var(--brown-dark); }
+  .stat-label { font-size: 10px; color: var(--gray); margin-top: 2px; }
+
+  /* MODALS */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(61,43,31,0.5); z-index: 200; align-items: flex-end; justify-content: center; }
+  @media(min-width:600px){ .modal-overlay { align-items: center; } }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: 20px 20px 0 0; padding: 24px 20px; width: 100%; max-width: 480px; max-height: 92dvh; overflow-y: auto; padding-bottom: calc(24px + var(--safe-bottom)); }
+  @media(min-width:600px){ .modal { border-radius: 16px; } }
+  .modal h2 { font-size: 15px; margin-bottom: 16px; color: var(--brown-dark); }
+  .modal label { font-size: 11px; font-weight: 700; color: var(--brown-mid); display: block; margin-bottom: 4px; }
+  .modal input, .modal select, .modal textarea { width: 100%; border: 1.5px solid #ddd; border-radius: 8px; padding: 10px 12px; font-size: 14px; margin-bottom: 12px; font-family: inherit; color: var(--brown-dark); background: var(--white); -webkit-appearance: none; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+  .btn-cancel { background: var(--beige); color: var(--brown-mid); border: none; border-radius: 8px; padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; touch-action: manipulation; }
+
+  /* INSTALL BANNER */
+  #installBanner { display: none; position: fixed; bottom: calc(16px + var(--safe-bottom)); left: 50%; transform: translateX(-50%); background: var(--brown-dark); color: var(--white); border-radius: 14px; padding: 12px 20px; font-size: 13px; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 300; display: flex; align-items: center; gap: 12px; max-width: calc(100vw - 32px); }
+  #installBanner button { background: var(--blue-steel); border: none; border-radius: 8px; color: var(--white); padding: 7px 14px; font-size: 12px; font-weight: 700; cursor: pointer; touch-action: manipulation; }
+  #installBanner .close-banner { background: none; border: none; color: #aaa; cursor: pointer; font-size: 18px; padding: 0; }
+  .col.drag-over { background: #f0f7fa; border: 2px dashed var(--blue-steel); }
+  .empty-col { text-align: center; color: #ccc; font-size: 11px; padding: 24px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <input type="file" id="logoInput" accept="image/*" onchange="changeLogo(event)"/>
+    <div id="logoWrapper" onclick="document.getElementById('logoInput').click()">
+      <div class="logo-placeholder" id="logoPlaceholder">JYJ</div>
+      <img id="logoImg" alt="Logo JYJ"/>
+    </div>
+    <div class="logo-text">
+      <span>JYJ</span>
+      <span>ESTUDIO ARQUITECTÓNICO</span>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-primary" onclick="openModal()">＋ Tarea</button>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="setView('kanban',this)">📋 Tablero</button>
+  <button onclick="setView('lista',this)">📄 Lista</button>
+  <button onclick="setView('archivos',this)">📂 Archivos</button>
+  <button onclick="setView('stats',this)">📊 Resumen</button>
+</nav>
+
+<main>
+  <div class="projects-bar" id="projectsBar"></div>
+  <div id="statsRow" class="stats-row" style="display:none"></div>
+
+  <!-- KANBAN -->
+  <div id="kanbanView">
+    <div class="kanban-wrapper">
+      <div class="kanban">
+        <div class="col" id="col-todo" ondragover="dragOver(event)" ondrop="drop(event,'todo')" ondragleave="dragLeave(event)">
+          <div class="col-header"><div class="col-title"><div class="col-dot" style="background:#aaa"></div>Por Hacer<span class="col-count" id="cnt-todo">0</span></div></div>
+          <div id="tasks-todo"></div>
+          <button class="add-task-btn" onclick="openModal('todo')">＋ Agregar</button>
+        </div>
+        <div class="col" id="col-progress" ondragover="dragOver(event)" ondrop="drop(event,'progress')" ondragleave="dragLeave(event)">
+          <div class="col-header"><div class="col-title"><div class="col-dot" style="background:#e67e22"></div>En Progreso<span class="col-count" id="cnt-progress">0</span></div></div>
+          <div id="tasks-progress"></div>
+          <button class="add-task-btn" onclick="openModal('progress')">＋ Agregar</button>
+        </div>
+        <div class="col" id="col-review" ondragover="dragOver(event)" ondrop="drop(event,'review')" ondragleave="dragLeave(event)">
+          <div class="col-header"><div class="col-title"><div class="col-dot" style="background:var(--blue-steel)"></div>En Revisión<span class="col-count" id="cnt-review">0</span></div></div>
+          <div id="tasks-review"></div>
+          <button class="add-task-btn" onclick="openModal('review')">＋ Agregar</button>
+        </div>
+        <div class="col" id="col-done" ondragover="dragOver(event)" ondrop="drop(event,'done')" ondragleave="dragLeave(event)">
+          <div class="col-header"><div class="col-title"><div class="col-dot" style="background:#27ae60"></div>Completado<span class="col-count" id="cnt-done">0</span></div></div>
+          <div id="tasks-done"></div>
+          <button class="add-task-btn" onclick="openModal('done')">＋ Agregar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTA -->
+  <div id="listView" style="display:none">
+    <div class="list-table-wrap">
+      <table>
+        <thead><tr>
+          <th>Tarea</th><th>Proyecto</th><th>Responsable</th><th>Prioridad</th><th>Estado</th><th>Fecha</th><th></th>
+        </tr></thead>
+        <tbody id="listBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ARCHIVOS -->
+  <div id="archivosView" style="display:none">
+    <div class="file-zone-wrapper">
+      <div class="file-zone-title">📂 Repositorio de Archivos del Estudio</div>
+      <div class="drop-area" id="dropArea"
+        onclick="document.getElementById('fileInput').click()"
+        ondragover="fileDragOver(event)" ondragleave="fileDragLeave(event)" ondrop="fileDrop(event)">
+        <div class="drop-icon">📁</div>
+        <p>Toca para subir o arrastra archivos aquí</p>
+        <span>Planos, renders, contratos, presupuestos, fotos de obra…</span>
+      </div>
+      <input type="file" id="fileInput" multiple onchange="handleFiles(event.target.files)"/>
+      <div class="file-list" id="fileList"></div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div id="statsView" style="display:none"></div>
+</main>
+
+<!-- INSTALL BANNER -->
+<div id="installBanner" style="display:none">
+  <span>📲 Instala la app JYJ</span>
+  <button onclick="installApp()">Instalar</button>
+  <button class="close-banner" onclick="document.getElementById('installBanner').style.display='none'">✕</button>
+</div>
+
+<!-- TASK MODAL -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <h2>📝 Nueva Tarea</h2>
+    <label>Título *</label>
+    <input type="text" id="f-title" placeholder="Ej: Planos estructurales"/>
+    <label>Proyecto</label>
+    <select id="f-project"></select>
+    <label>Responsable</label>
+    <input type="text" id="f-assignee" placeholder="Nombre del responsable"/>
+    <label>Prioridad</label>
+    <select id="f-priority">
+      <option value="alta">🔴 Alta</option>
+      <option value="media" selected>🟠 Media</option>
+      <option value="baja">🔵 Baja</option>
+    </select>
+    <label>Estado</label>
+    <select id="f-status">
+      <option value="todo">Por Hacer</option>
+      <option value="progress">En Progreso</option>
+      <option value="review">En Revisión</option>
+      <option value="done">Completado</option>
+    </select>
+    <label>Fecha límite</label>
+    <input type="date" id="f-date"/>
+    <label>Descripción</label>
+    <textarea id="f-desc" rows="2" placeholder="Detalles adicionales..."></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-primary" onclick="saveTask()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROJECT MODAL -->
+<div class="modal-overlay" id="projModal">
+  <div class="modal">
+    <h2>🏗️ Nuevo Proyecto</h2>
+    <label>Nombre *</label>
+    <input type="text" id="p-name" placeholder="Ej: Residencia Los Álamos"/>
+    <label>Cliente</label>
+    <input type="text" id="p-client" placeholder="Nombre del cliente"/>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeProjModal()">Cancelar</button>
+      <button class="btn-primary" onclick="saveProject()">Crear</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let tasks=[], projects=['General'], files=[], activeProject='Todos', currentView='kanban', dragId=null, deferredInstall=null;
+const SL={todo:'Por Hacer',progress:'En Progreso',review:'En Revisión',done:'Completado'};
+const PL={alta:'Alta',media:'Media',baja:'Baja'};
+const FI={pdf:'📄',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',dwg:'📐',dxf:'📐',png:'🖼️',jpg:'🖼️',jpeg:'🖼️',mp4:'🎬',zip:'🗜️',rar:'🗜️',ppt:'📊',pptx:'📊'};
+const fi=n=>FI[n.split('.').pop().toLowerCase()]||'📎';
+const fs=b=>b<1024?b+'B':b<1048576?(b/1024).toFixed(1)+'KB':(b/1048576).toFixed(1)+'MB';
+
+// ── STORAGE (localStorage fallback) ──
+function lsGet(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
+function lsSet(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
+function save(){
+  lsSet('jyj-tasks',JSON.stringify(tasks));
+  lsSet('jyj-projects',JSON.stringify(projects));
+  lsSet('jyj-files-meta',JSON.stringify(files.map(f=>({id:f.id,name:f.name,size:f.size,date:f.date,project:f.project}))));
+}
+function load(){
+  try{const r=lsGet('jyj-tasks');if(r)tasks=JSON.parse(r);}catch(e){}
+  try{const r=lsGet('jyj-projects');if(r)projects=JSON.parse(r);}catch(e){}
+  try{const r=lsGet('jyj-logo');if(r)applyLogo(r);}catch(e){}
+  try{const r=lsGet('jyj-files-meta');if(r)files=JSON.parse(r).map(m=>({...m,url:null}));}catch(e){}
+}
+
+// ── PWA ──
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); deferredInstall=e;
+  document.getElementById('installBanner').style.display='flex';
+});
+window.addEventListener('appinstalled',()=>{ document.getElementById('installBanner').style.display='none'; });
+function installApp(){ if(deferredInstall){ deferredInstall.prompt(); deferredInstall.userChoice.then(()=>{ deferredInstall=null; document.getElementById('installBanner').style.display='none'; }); } }
+
+// ── LOGO ──
+function changeLogo(e){
+  const file=e.target.files[0]; if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{ applyLogo(ev.target.result); lsSet('jyj-logo',ev.target.result); };
+  r.readAsDataURL(file);
+}
+function applyLogo(src){
+  const img=document.getElementById('logoImg'), ph=document.getElementById('logoPlaceholder');
+  img.src=src; img.style.display='block'; ph.style.display='none';
+}
+
+// ── FILES ──
+function fileDragOver(e){e.preventDefault();document.getElementById('dropArea').style.borderColor='var(--blue-steel)';}
+function fileDragLeave(){document.getElementById('dropArea').style.borderColor='var(--brown-light)';}
+function fileDrop(e){e.preventDefault();fileDragLeave();handleFiles(e.dataTransfer.files);}
+function handleFiles(fileList){
+  Array.from(fileList).forEach(f=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      files.push({id:Date.now()+Math.random().toString(36).slice(2),name:f.name,size:f.size,date:new Date().toLocaleDateString('es-PE'),project:activeProject==='Todos'?'General':activeProject,url:ev.target.result});
+      save(); renderFiles();
+    };
+    reader.readAsDataURL(f);
+  });
+}
+function renderFiles(){
+  const list=document.getElementById('fileList');
+  const ft=activeProject==='Todos'?files:files.filter(f=>f.project===activeProject);
+  if(!ft.length){list.innerHTML='<p style="color:#aaa;font-size:12px;text-align:center;padding:16px;">Sin archivos subidos aún.</p>';return;}
+  list.innerHTML=ft.map(f=>`<div class="file-item">
+    <div class="file-icon">${fi(f.name)}</div>
+    <div class="file-info"><div class="file-name">${f.name}</div><div class="file-meta">${fs(f.size)} · ${f.date} · 📁 ${f.project}</div></div>
+    <div class="file-actions">
+      ${f.url?`<button class="file-btn" onclick="dlFile('${f.id}')" title="Descargar">⬇️</button>`:''}
+      <button class="file-btn" onclick="delFile('${f.id}')" title="Eliminar">🗑️</button>
+    </div>
+  </div>`).join('');
+}
+function dlFile(id){const f=files.find(x=>x.id===id);if(!f||!f.url)return;const a=document.createElement('a');a.href=f.url;a.download=f.name;a.click();}
+function delFile(id){files=files.filter(f=>f.id!==id);save();renderFiles();}
+
+// ── INIT ──
+load(); renderAll();
+
+function renderAll(){renderProjectBar();renderProjectSelect();renderView();}
+
+function renderProjectBar(){
+  const bar=document.getElementById('projectsBar');
+  bar.innerHTML='<span class="proj-label">PROYECTO:</span>';
+  const all=document.createElement('div');
+  all.className='proj-tag'+(activeProject==='Todos'?' active':'');
+  all.textContent='Todos';all.onclick=()=>filterProject('Todos',all);bar.appendChild(all);
+  projects.forEach(p=>{const t=document.createElement('div');t.className='proj-tag'+(activeProject===p?' active':'');t.textContent=p;t.onclick=()=>filterProject(p,t);bar.appendChild(t);});
+  const ab=document.createElement('button');ab.className='proj-add';ab.textContent='＋ Nuevo';ab.onclick=openProjModal;bar.appendChild(ab);
+}
+function renderProjectSelect(){document.getElementById('f-project').innerHTML=projects.map(p=>`<option value="${p}">${p}</option>`).join('');}
+function filterProject(p,el){activeProject=p;document.querySelectorAll('.proj-tag').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderView();}
+function setView(v,btn){currentView=v;document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderView();}
+
+function renderView(){
+  ['kanbanView','listView','archivosView','statsView'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('statsRow').style.display='none';
+  if(currentView==='kanban'){document.getElementById('kanbanView').style.display='block';renderKanban();}
+  else if(currentView==='lista'){document.getElementById('listView').style.display='block';renderList();}
+  else if(currentView==='archivos'){document.getElementById('archivosView').style.display='block';renderFiles();}
+  else{document.getElementById('statsRow').style.display='flex';document.getElementById('statsView').style.display='block';renderStats();}
+}
+
+function ftasks(){return activeProject==='Todos'?tasks:tasks.filter(t=>t.project===activeProject);}
+
+function renderKanban(){
+  ['todo','progress','review','done'].forEach(st=>{
+    const cont=document.getElementById('tasks-'+st);
+    const cols=ftasks().filter(t=>t.status===st);
+    document.getElementById('cnt-'+st).textContent=cols.length;
+    cont.innerHTML=cols.length?cols.map(t=>taskCard(t)).join(''):'<div class="empty-col">Sin tareas</div>';
+  });
+}
+function taskCard(t){
+  const fc=files.filter(f=>f.project===t.project).length;
+  return `<div class="task-card priority-${t.priority}" draggable="true" ondragstart="dragStart('${t.id}')">
+    <button class="task-del" onclick="delTask('${t.id}')">✕</button>
+    <div class="task-title">${t.title}</div>
+    <div class="task-project">📁 ${t.project}</div>
+    <div class="task-meta">
+      <span class="task-assignee">👤 ${t.assignee||'Sin asignar'}</span>
+      <span class="priority-badge">${PL[t.priority]}</span>
+      <span class="task-date">${t.date?'📅 '+t.date:''}</span>
+    </div>
+    ${fc?`<div class="task-files-badge">📎 ${fc} archivo${fc>1?'s':''}</div>`:''}
+  </div>`;
+}
+function renderList(){
+  const body=document.getElementById('listBody');
+  const ft=ftasks();
+  if(!ft.length){body.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:#aaa;">Sin tareas</td></tr>';return;}
+  const c={alta:'#fde',media:'#fef3e2',baja:'#e8f4f8'},tc={alta:'#c0392b',media:'#e67e22',baja:'var(--blue-steel)'};
+  body.innerHTML=ft.map((t,i)=>`<tr style="background:${i%2?'#faf7f4':'#fff'}">
+    <td style="font-weight:600">${t.title}</td><td style="color:var(--blue-steel)">${t.project}</td>
+    <td>${t.assignee||'—'}</td>
+    <td><span style="background:${c[t.priority]};color:${tc[t.priority]};border-radius:8px;padding:2px 7px;font-size:10px;font-weight:700">${PL[t.priority]}</span></td>
+    <td>${SL[t.status]}</td><td style="color:var(--gray)">${t.date||'—'}</td>
+    <td><button onclick="delTask('${t.id}')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:13px">✕</button></td>
+  </tr>`).join('');
+}
+function renderStats(){
+  const total=tasks.length,done=tasks.filter(t=>t.status==='done').length,inprog=tasks.filter(t=>t.status==='progress').length,alta=tasks.filter(t=>t.priority==='alta').length;
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Total</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#27ae60">${done}</div><div class="stat-label">Completadas</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#e67e22">${inprog}</div><div class="stat-label">En Progreso</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#c0392b">${alta}</div><div class="stat-label">Alta Prior.</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--blue-steel)">${projects.length}</div><div class="stat-label">Proyectos</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--brown-mid)">${files.length}</div><div class="stat-label">Archivos</div></div>`;
+  document.getElementById('statsView').innerHTML=`<div style="background:var(--white);border-radius:14px;padding:18px;box-shadow:var(--shadow)">
+    <h3 style="margin-bottom:14px;font-size:14px">Avance por Proyecto</h3>
+    ${projects.map(p=>{const pt=tasks.filter(t=>t.project===p),pct=pt.length?Math.round(pt.filter(t=>t.status==='done').length/pt.length*100):0;return`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="font-weight:700">${p}</span><span style="color:var(--gray)">${pt.filter(t=>t.status==='done').length}/${pt.length} (${pct}%)</span></div><div style="background:#eee;border-radius:8px;height:7px"><div style="background:var(--blue-steel);height:7px;border-radius:8px;width:${pct}%"></div></div></div>`;}).join('')||'<p style="color:#aaa;font-size:12px">Sin proyectos.</p>'}
+  </div>`;
+}
+
+// MODALS
+function openModal(st='todo'){document.getElementById('f-status').value=st;document.getElementById('taskModal').classList.add('open');}
+function closeModal(){document.getElementById('taskModal').classList.remove('open');['f-title','f-assignee','f-date','f-desc'].forEach(id=>document.getElementById(id).value='');document.getElementById('f-priority').value='media';}
+function saveTask(){
+  const title=document.getElementById('f-title').value.trim();
+  if(!title){alert('Ingresa el título');return;}
+  tasks.push({id:Date.now().toString(),title,project:document.getElementById('f-project').value,assignee:document.getElementById('f-assignee').value.trim(),priority:document.getElementById('f-priority').value,status:document.getElementById('f-status').value,date:document.getElementById('f-date').value,desc:document.getElementById('f-desc').value.trim()});
+  save();closeModal();renderAll();
+}
+function delTask(id){tasks=tasks.filter(t=>t.id!==id);save();renderAll();}
+function openProjModal(){document.getElementById('projModal').classList.add('open');}
+function closeProjModal(){document.getElementById('projModal').classList.remove('open');document.getElementById('p-name').value='';document.getElementById('p-client').value='';}
+function saveProject(){const name=document.getElementById('p-name').value.trim();if(!name){alert('Ingresa el nombre');return;}if(!projects.includes(name)){projects.push(name);save();}closeProjModal();renderAll();}
+
+// DRAG
+function dragStart(id){dragId=id;}
+function dragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+function dragLeave(e){e.currentTarget.classList.remove('drag-over');}
+function drop(e,status){e.preventDefault();e.currentTarget.classList.remove('drag-over');if(!dragId)return;const t=tasks.find(x=>x.id===dragId);if(t){t.status=status;save();renderAll();}dragId=null;}
+
+document.getElementById('taskModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.getElementById('projModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeProjModal();});
+</script>
+</body>
+</html>
