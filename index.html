@@ -307,5 +307,23 @@ function openProj(){gs('mProj').classList.add('open');}
 function closeProj(){gs('mProj').classList.remove('open');gs('pNom').value='';gs('pCli').value='';}
 function saveProj(){var n=gs('pNom').value.trim();if(!n){alert('Ingresa el nombre');return;}dbSaveProject(n);closeProj();}
 </script>
+
+<script>
+// AUTO-INIT FIREBASE — config embebida automáticamente
+(function(){
+  var cfg = {
+    apiKey: "AIzaSyB_4mB79w9sEOdBHACKHYTXZxBoN32HTag",
+    authDomain: "jyj-app-f56e9.firebaseapp.com",
+    projectId: "jyj-app-f56e9",
+    storageBucket: "jyj-app-f56e9.firebasestorage.app",
+    messagingSenderId: "98350467996",
+    appId: "1:98350467996:web:6aab291a32aec1e72e5659"
+  };
+  localStorage.setItem('jyj-fb-config', JSON.stringify(cfg));
+  // Si el setupScreen está visible, ocultarlo e iniciar Firebase
+  var setup = document.getElementById('setupScreen');
+  if(setup) setup.style.display = 'none';
+})();
+</script>
 </body>
 </html>
