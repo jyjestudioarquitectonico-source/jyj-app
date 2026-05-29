@@ -1,20 +1,16 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
-<meta name="theme-color" content="#3d2b1f"/>
-<meta name="mobile-web-app-capable" content="yes"/>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+<meta name="theme-color" content="#3d2b1f"/><meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="JYJ Tareas"/>
-<link rel="manifest" href="manifest.json"/>
-<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<link rel="manifest" href="manifest.json"/><link rel="apple-touch-icon" href="icons/icon-192.png"/>
 <title>JYJ Gestor de Tareas</title>
 <style>
 :root{--bd:#3d2b1f;--bm:#7a4f35;--bl:#c4956a;--be:#e8d5be;--bs:#5c8a9a;--bsl:#a8c4cc;--wh:#faf7f4;--gr:#888;--sh:0 2px 12px rgba(61,43,31,.13);}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:'Segoe UI',Arial,sans-serif;background:var(--be);color:var(--bd);min-height:100vh;overscroll-behavior:none;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--be);color:var(--bd);min-height:100vh;}
 header{background:var(--bd);color:var(--wh);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:64px;box-shadow:var(--sh);position:sticky;top:0;z-index:50;}
 .la{display:flex;align-items:center;gap:12px;}
 #li{display:none;}#lw{cursor:pointer;flex-shrink:0;}
@@ -57,8 +53,7 @@ main{padding:16px;}
 .fzw{background:var(--wh);border-radius:14px;padding:18px;box-shadow:var(--sh);margin-bottom:16px;}
 .fzt{font-size:14px;font-weight:800;color:var(--bd);margin-bottom:14px;}
 .da{border:2.5px dashed var(--bl);border-radius:12px;padding:24px 16px;text-align:center;color:var(--bm);cursor:pointer;background:var(--be);}
-.di{font-size:28px;margin-bottom:8px;}
-.da p{font-size:12px;font-weight:600;}.da span{font-size:10px;color:var(--gr);}
+.di{font-size:28px;margin-bottom:8px;}.da p{font-size:12px;font-weight:600;}.da span{font-size:10px;color:var(--gr);}
 #finput{display:none;}
 .flist{margin-top:14px;display:flex;flex-direction:column;gap:8px;}
 .fitem{display:flex;align-items:center;gap:10px;background:var(--be);border-radius:10px;padding:10px 12px;font-size:12px;}
@@ -90,8 +85,7 @@ th,td{padding:10px 14px;text-align:left;}tbody tr{border-bottom:1px solid #eee;f
 #ub{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#27ae60;color:#fff;padding:10px 16px;font-size:13px;font-weight:700;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.25);}
 #ub .ubtn{background:#fff;color:#27ae60;border:none;border-radius:8px;padding:5px 14px;margin-left:10px;font-weight:700;cursor:pointer;font-size:12px;}
 #ub .ucls{background:none;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer;margin-left:8px;}
-</style>
-</head>
+</style></head>
 <body>
 <div id="ub">Nueva version disponible <button class="ubtn" id="btnU">Actualizar ahora</button><button class="ucls" id="btnCU">x</button></div>
 <header>
@@ -122,8 +116,7 @@ th,td{padding:10px 14px;text-align:left;}tbody tr{border-bottom:1px solid #eee;f
 </main>
 <div id="ibanner"><span>Instala la app JYJ</span><button class="ibtn" id="btnInst">Instalar</button><button class="icls" id="btnCIB">x</button></div>
 <div class="mover" id="mTask"><div class="mdlg">
-  <h2>Nueva Tarea</h2>
-  <label>Titulo *</label><input type="text" id="fTit" placeholder="Ej: Planos estructurales Bloque A"/>
+  <h2>Nueva Tarea</h2><label>Titulo *</label><input type="text" id="fTit" placeholder="Ej: Planos estructurales"/>
   <label>Proyecto</label><select id="fProj"></select>
   <label>Responsable</label><input type="text" id="fAss" placeholder="Nombre del responsable"/>
   <label>Prioridad</label><select id="fPri"><option value="alta">Alta</option><option value="media" selected>Media</option><option value="baja">Baja</option></select>
@@ -133,43 +126,47 @@ th,td{padding:10px 14px;text-align:left;}tbody tr{border-bottom:1px solid #eee;f
   <div class="mact"><button class="bcn" id="btnCT">Cancelar</button><button class="bp" id="btnST">Guardar Tarea</button></div>
 </div></div>
 <div class="mover" id="mProj"><div class="mdlg">
-  <h2>Nuevo Proyecto</h2>
-  <label>Nombre *</label><input type="text" id="pNom" placeholder="Ej: Residencia Los Alamos"/>
+  <h2>Nuevo Proyecto</h2><label>Nombre *</label><input type="text" id="pNom" placeholder="Ej: Residencia Los Alamos"/>
   <label>Cliente</label><input type="text" id="pCli" placeholder="Nombre del cliente"/>
   <div class="mact"><button class="bcn" id="btnCP">Cancelar</button><button class="bp" id="btnSP">Crear Proyecto</button></div>
 </div></div>
 <script>
-var tasks=[],projects=['General'],files=[],activeProj='Todos',view='kanban',dragId=null,deferredInst=null,newSW=null;
+var tasks=[],projects=['General'],files=[],activeProj='Todos',view='kanban',dragId=null,deferredInst=null;
 var SL={todo:'Por Hacer',progress:'En Progreso',review:'En Revision',done:'Completado'};
 var PL={alta:'Alta',media:'Media',baja:'Baja'};
 function gs(id){return document.getElementById(id);}
 function ls(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lset(k,v){try{localStorage.setItem(k,v);}catch(e){}}
-function save(){lset('jyj4-t',JSON.stringify(tasks));lset('jyj4-p',JSON.stringify(projects));lset('jyj4-f',JSON.stringify(files.map(function(f){return{id:f.id,name:f.name,size:f.size,date:f.date,project:f.project};})));}
-function loadAll(){var r;r=ls('jyj4-t');if(r)try{tasks=JSON.parse(r);}catch(e){}r=ls('jyj4-p');if(r)try{projects=JSON.parse(r);}catch(e){}r=ls('jyj4-logo');if(r)setLogo(r);r=ls('jyj4-f');if(r)try{files=JSON.parse(r).map(function(m){return Object.assign({url:null},m);});}catch(e){}}
+function save(){lset('jyj5-t',JSON.stringify(tasks));lset('jyj5-p',JSON.stringify(projects));lset('jyj5-f',JSON.stringify(files.map(function(f){return{id:f.id,name:f.name,size:f.size,date:f.date,project:f.project};})));}
+function loadAll(){var r;r=ls('jyj5-t');if(r)try{tasks=JSON.parse(r);}catch(e){}r=ls('jyj5-p');if(r)try{projects=JSON.parse(r);}catch(e){}r=ls('jyj5-logo');if(r)setLogo(r);r=ls('jyj5-f');if(r)try{files=JSON.parse(r).map(function(m){return Object.assign({url:null},m);});}catch(e){}}
 function setLogo(src){gs('limg').src=src;gs('limg').style.display='block';gs('lph').style.display='none';}
 function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function fsize(b){return b<1024?b+'B':b<1048576?(b/1024).toFixed(1)+'KB':(b/1048576).toFixed(1)+'MB';}
 function ficon(n){return({pdf:'📄',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',dwg:'📐',dxf:'📐',png:'🖼️',jpg:'🖼️',jpeg:'🖼️',mp4:'🎬',zip:'🗜️',rar:'🗜️'})[n.split('.').pop().toLowerCase()]||'📎';}
-if('serviceWorker' in navigator){
-  var refreshing=false;
-  navigator.serviceWorker.addEventListener('controllerchange',function(){if(!refreshing){refreshing=true;window.location.reload();}});
-  navigator.serviceWorker.register('sw.js').then(function(reg){
-    setInterval(function(){reg.update();},60000);
-    reg.addEventListener('updatefound',function(){
-      var nw=reg.installing;
-      nw.addEventListener('statechange',function(){if(nw.state==='installed'&&navigator.serviceWorker.controller){newSW=nw;gs('ub').style.display='block';}});
-    });
-  }).catch(function(){});
+/* AUTO-UPDATE via version.json — salta SW y cache completamente */
+function checkUpdate(){
+  fetch('version.json?_='+Date.now(),{cache:'no-store'})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var stored=ls('jyj-ver');
+      if(!stored){lset('jyj-ver',String(d.version));return;}
+      if(stored!==String(d.version)){lset('jyj-ver',String(d.version));gs('ub').style.display='block';}
+    }).catch(function(){});
 }
-gs('btnU').addEventListener('click',function(){if(newSW){newSW.postMessage({type:'SKIP_WAITING'});}else{window.location.reload(true);}});
+checkUpdate();
+setInterval(checkUpdate,3*60*1000);
+gs('btnU').addEventListener('click',function(){
+  if('caches' in window){caches.keys().then(function(ks){return Promise.all(ks.map(function(k){return caches.delete(k);}));}).then(function(){window.location.reload(true);});}
+  else{window.location.reload(true);}
+});
 gs('btnCU').addEventListener('click',function(){gs('ub').style.display='none';});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
 window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredInst=e;gs('ibanner').style.display='flex';});
 window.addEventListener('appinstalled',function(){gs('ibanner').style.display='none';});
 gs('btnInst').addEventListener('click',function(){if(deferredInst){deferredInst.prompt();deferredInst.userChoice.then(function(){deferredInst=null;gs('ibanner').style.display='none';});}});
 gs('btnCIB').addEventListener('click',function(){gs('ibanner').style.display='none';});
 gs('lw').addEventListener('click',function(){gs('li').click();});
-gs('li').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){setLogo(ev.target.result);lset('jyj4-logo',ev.target.result);};r.readAsDataURL(f);});
+gs('li').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){setLogo(ev.target.result);lset('jyj5-logo',ev.target.result);};r.readAsDataURL(f);});
 gs('mainNav').addEventListener('click',function(e){var b=e.target.closest('button[data-v]');if(!b)return;gs('mainNav').querySelectorAll('button').forEach(function(x){x.classList.remove('active');});b.classList.add('active');view=b.getAttribute('data-v');renderView();});
 gs('btnNT').addEventListener('click',function(){openTask('todo');});
 document.querySelectorAll('.abtn').forEach(function(b){b.addEventListener('click',function(){openTask(this.getAttribute('data-c'));});});
@@ -199,6 +196,4 @@ function delTask(id){if(!confirm('Eliminar esta tarea?'))return;tasks=tasks.filt
 function openProj(){gs('mProj').classList.add('open');}
 function closeProj(){gs('mProj').classList.remove('open');gs('pNom').value='';gs('pCli').value='';}
 function saveProj(){var n=gs('pNom').value.trim();if(!n){alert('Ingresa el nombre');return;}if(!projects.includes(n)){projects.push(n);save();}closeProj();renderAll();}
-</script>
-</body>
-</html>
+</script></body></html>
