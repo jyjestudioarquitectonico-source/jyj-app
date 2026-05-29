@@ -231,15 +231,16 @@ gs('btnSetup').addEventListener('click', function(){
 });
 
 // Cargar config guardada o mostrar setup
-var savedCfg = ls('jyj-fb-config');
-if(savedCfg){
-  try{
-    var cfg=JSON.parse(savedCfg);
-    if(!initFirebase(cfg)){gs('setupScreen').style.display='block';}
-  }catch(e){gs('setupScreen').style.display='block';}
-} else {
-  gs('setupScreen').style.display='block';
-}
+// Config Firebase embebida directamente
+var _FB_CFG = {
+  apiKey: "AIzaSyB_4mB79w9sEOdBHACKHYTXZxBoN32HTag",
+  authDomain: "jyj-app-f56e9.firebaseapp.com",
+  projectId: "jyj-app-f56e9",
+  storageBucket: "jyj-app-f56e9.firebasestorage.app",
+  messagingSenderId: "98350467996",
+  appId: "1:98350467996:web:6aab291a32aec1e72e5659"
+};
+initFirebase(_FB_CFG);
 
 /* ===== DB OPERATIONS ===== */
 function dbSaveTask(t){if(!db)return;t.createdAt=t.createdAt||Date.now();db.collection('tasks').doc(t.id).set(t);}
